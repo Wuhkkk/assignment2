@@ -1,0 +1,36 @@
+// Specification for a Smart Parking System (Unrealizable when one line is commented)
+spec SpecUnreal
+
+type NumCars = Int(0..10);
+
+env boolean carAtEntrance;
+env boolean carAtExit;
+env NumCars availableSpots;
+
+sys boolean openEntranceGate;
+sys boolean openExitGate;
+sys NumCars assignedSpot;
+
+// ===================== Assumptions =====================
+asm ini !openEntranceGate;
+asm ini !openExitGate;
+
+asm alw carAtExit -> next(carAtExit);
+asm alw availableSpots >= 0 & availableSpots <= 10;
+
+// Fairness assumptions - One commented out to make system unrealizable
+//FIX
+// asm alwEv (availableSpots > 0 -> carAtEntrance);  <-- 这个就是你要找的！
+asm alwEv (carAtExit -> availableSpots < 10);
+
+// ===================== Guarantees =====================
+gar ini assignedSpot = 0;
+
+gar alw openEntranceGate -> availableSpots > 0;
+gar alw openEntranceGate -> next(openEntranceGate = false);
+gar alw openExitGate -> next(openExitGate = false);
+
+// 增加这个 fairness guarantee，使系统必须无限次响应入口请求
+gar alwEv (availableSpots > 0 -> carAtEntrance);  // 新增的关键 fairness guarantee！
+gar alwEv (!openEntranceGate -> (availableSpots > 0 -> carAtEntrance));
+gar alwEv (!openExitGate -> carAtExit);

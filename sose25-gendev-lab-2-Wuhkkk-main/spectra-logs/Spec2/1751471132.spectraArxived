@@ -1,0 +1,36 @@
+// Specification for a Smart Parking System (Guaranteed to be Unrealizable)
+spec SmartParkingSystemUnrealizable
+
+type NumCars = Int(0..10); // Maximum number of parking spots is 10
+
+// Environment variables (Inputs)
+env boolean carAtEntrance;
+env boolean carAtExit;
+env NumCars availableSpots;
+
+// System variables (Outputs)
+sys boolean openEntranceGate;
+sys boolean openExitGate;
+sys NumCars assignedSpot;
+
+// ===================== Assumptions =====================
+asm ini !openEntranceGate;
+asm ini !openExitGate;
+
+asm alw carAtExit -> next(carAtExit);
+asm alw availableSpots >= 0 & availableSpots <= 10;
+
+// 注释掉关键的正义假设！
+//asm alwEv (availableSpots > 0 -> carAtEntrance);
+asm alwEv (carAtExit -> availableSpots < 10); 
+// ===================== Guarantees =====================
+gar ini assignedSpot = 0;
+
+gar alw openEntranceGate -> availableSpots > 0;
+gar alw openEntranceGate -> next(openEntranceGate = false);
+gar alw openExitGate -> next(openExitGate = false);
+
+// 添加一个新的 fairness guarantee，强制要求出口有车
+gar alwEv (!openEntranceGate -> (availableSpots > 0 -> carAtEntrance));
+gar alwEv (!openExitGate -> carAtExit);
+//gar alwEv (availableSpots < 10 -> carAtExit);   

@@ -1,0 +1,42 @@
+// Unreal.spec - A variant of SmartParkingSystem that is unrealizable
+spec Unreal
+
+// Define the type for number of cars (0 to 10 parking spots)
+type NumCars = Int(0..10); // Maximum number of parking spots is 10
+
+// Environment variables (Inputs)
+env boolean carAtEntrance;     // Is there a car waiting at the entrance?
+env boolean carAtExit;         // Is there a car waiting at the exit?
+env NumCars availableSpots;    // Current number of available parking spots
+
+// System variables (Outputs)
+sys boolean openEntranceGate;  // Control the opening/closing of the entrance gate
+sys boolean openExitGate;      // Control the opening/closing of the exit gate
+sys NumCars assignedSpot;      // Parking spot assigned to a new arriving car (0~9)
+
+// ===================== Assumptions =====================
+// Initial state
+asm ini !openEntranceGate;        // Entrance gate is initially closed
+asm ini !openExitGate;            // Exit gate is initially closed
+
+// Safety assumptions
+asm alw carAtExit -> next(carAtExit); // If a car is at the exit, it may still be there in the next step
+asm alw availableSpots >= 0 & availableSpots <= 10; // Available spots must remain within valid range
+
+// Fairness assumptions - One key fairness has been removed
+asm alwEv (availableSpots > 0 -> carAtEntrance);  // When spots are available, eventually a car arrives
+
+//FIX The following assumption has been REMOVED:
+// asm alwEv (carAtExit -> availableSpots < 10); // Ensures space will eventually become available when needed
+
+// ===================== Guarantees =====================
+// Initial guarantees
+gar ini assignedSpot = 0;          // Initially no spot is assigned, default is 0
+
+// Safety guarantees
+gar alw openEntranceGate -> availableSpots > 0; // Only allow entrance gate to open if there are available spots
+gar alw openEntranceGate -> next(openEntranceGate = false); // Open only for one cycle
+gar alw openExitGate -> next(openExitGate = false); // Same for exit gate
+
+// Fairness guarantees
+gar alwEv openExitGate; // <-- UNREALIZABLE: system must keep opening the exit gate forever!

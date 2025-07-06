@@ -1,0 +1,64 @@
+import "DwyerPatterns.spectra"
+
+spec Elevator
+
+// 定义楼层类型：0~10层
+type Floors = Int(0..10);
+
+// 环境变量（Inputs）
+env Floors elevatorLocation; // 电梯当前位置
+env Floors request;          // 用户请求的目标楼层
+env boolean powerOn;         // 是否通电（环境控制）
+env boolean doorOpen;        // 电梯门是否打开（环境控制）
+
+// 系统变量（Outputs）
+sys {UP, DOWN} command;      // 电梯移动方向命令
+sys boolean moving;          // 是否正在移动
+sys boolean emergencyStop;  // 紧急停止按钮是否按下
+
+define
+  requestedUp := request > elevatorLocation;
+  requestedDown := request < elevatorLocation;
+  openRequest := request != elevatorLocation;
+
+// ===================== 假设 (Assumptions) =====================
+// 初始状态
+asm ini !emergencyStop;           // 初始不处于紧急停止状态
+asm ini elevatorLocation = 0;     // 初始电梯在0层
+
+// 安全假设
+asm alw powerOn -> next(powerOn); // 电源不会突然恢复
+asm alw doorOpen -> !moving;      // 门打开时不能移动
+asm alw elevatorLocation != request -> next(request) = request; // 请求保持直到被满足
+asm alw emergencyStop -> !moving & (command = UP | command = DOWN) -> false; // 紧急停止时电梯静止
+
+// 公平性假设（Justice Assumptions）
+asm alwEv powerOn;                // 电源最终会恢复
+asm alwEv !doorOpen;              // 门最终会关闭
+
+// ===================== 保证 (Guarantees) =====================
+// 初始状态
+gar ini !moving;                  // 初始电梯不动
+gar ini command = UP;             // 初始默认向上方向
+
+// 安全保证
+gar alw (moving <-> (command = UP | command = DOWN)); // 移动必须有方向命令
+gar alw moving -> elevatorLocation != request;         // 移动中不能在目标楼层
+gar alw (command=UP -> next(elevatorLocation) >= elevatorLocation) &
+       (command=DOWN -> next(elevatorLocation) <= elevatorLocation); // 方向约束
+gar alw !powerOn -> !moving;       // 断电时不能移动
+
+// 公平性保证
+gar alwEv elevatorLocation = request; // 最终到达请求楼层
+gar alwEv !moving;                    // 最终电梯会停下来
+
+// ===================== Dwyer Patterns for Response =====================
+// 使用响应模式确保电梯最终到达请求楼层
+asm respond_up:
+  S_responds_to_P_globally(requestedUp, elevatorLocation = request);
+asm respond_down:
+  S_responds_to_P_globally(requestedDown, elevatorLocation = request);
+
+// 保证开放请求最终会被处理
+gar eventuallyHandleOpenRequests:
+  S_responds_to_P_globally(openRequest, elevatorLocation = request);

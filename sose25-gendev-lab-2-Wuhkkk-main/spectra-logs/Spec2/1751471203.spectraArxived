@@ -1,0 +1,41 @@
+// Specification for a Smart Parking System (Unrealizable due to missing justice assumption)
+spec SpecUnreal
+
+type NumCars = Int(0..10); // Maximum number of parking spots is 10
+
+// Environment variables (Inputs)
+env boolean carAtEntrance;     // Is there a car waiting at the entrance?
+env boolean carAtExit;         // Is there a car waiting at the exit?
+env NumCars availableSpots;    // Current number of available parking spots
+
+// System variables (Outputs)
+sys boolean openEntranceGate;  // Control the opening/closing of the entrance gate
+sys boolean openExitGate;      // Control the opening/closing of the exit gate
+sys NumCars assignedSpot;      // Parking spot assigned to a new arriving car (0~9)
+
+// ===================== Assumptions =====================
+// Initial state
+asm ini !openEntranceGate;        // Entrance gate is initially closed
+asm ini !openExitGate;            // Exit gate is initially closed
+
+// Safety assumptions
+asm alw carAtExit -> next(carAtExit); 
+asm alw availableSpots >= 0 & availableSpots <= 10;
+
+// Fairness assumptions - One commented out to make system unrealizable
+//FIX
+// asm alwEv (availableSpots > 0 -> carAtEntrance);  
+asm alwEv (carAtExit -> availableSpots < 10);
+
+// ===================== Guarantees =====================
+// Initial guarantees
+gar ini assignedSpot = 0;          
+
+// Safety guarantees
+gar alw openEntranceGate -> availableSpots > 0; 
+gar alw openEntranceGate -> next(openEntranceGate = false); 
+gar alw openExitGate -> next(openExitGate = false); 
+
+// Fairness guarantees
+gar alwEv (!openEntranceGate -> (availableSpots > 0 -> carAtEntrance)); 
+gar alwEv (!openExitGate -> carAtExit);

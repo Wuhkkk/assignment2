@@ -1,0 +1,35 @@
+<record>
+  <index>1751467913145</index>
+  <date>Wed Jul 02 22:51:53 CST 2025</date>
+  <message>TimeStamp-1751467913-Start-ALL_CORES</message>
+</record>
+<record>
+  <index>1751467913503</index>
+  <date>Wed Jul 02 22:51:53 CST 2025</date>
+  <message>TimeStamp-1751467913-Operation-ALL_CORES-Buffer-Core #1 at lines &lt; 45 49 &gt; is</message>
+</record>
+<record>
+  <index>1751467913517</index>
+  <date>Wed Jul 02 22:51:53 CST 2025</date>
+  <message>TimeStamp-1751467913-Operation-ALL_CORES-Buffer-Core #2 at lines &lt; 47 49 &gt; is</message>
+</record>
+<record>
+  <index>1751467913532</index>
+  <date>Wed Jul 02 22:51:53 CST 2025</date>
+  <message>TimeStamp-1751467913-Operation-ALL_CORES-Buffer-Core #3 at lines &lt; 46 47 &gt; is</message>
+</record>
+<record>
+  <index>1751467913545</index>
+  <date>Wed Jul 02 22:51:53 CST 2025</date>
+  <message>TimeStamp-1751467913-Operation-ALL_CORES-Buffer-Core #4 at lines &lt; 41 45 &gt; is</message>
+</record>
+<record>
+  <index>1751467913558</index>
+  <date>Wed Jul 02 22:51:53 CST 2025</date>
+  <message>TimeStamp-1751467913-Operation-ALL_CORES-Buffer-Core #5 at lines &lt; 45 46 &gt; is</message>
+</record>
+<record>
+  <index>1751467913571</index>
+  <date>Wed Jul 02 22:51:53 CST 2025</date>
+  <message>TimeStamp-1751467913-Operation-ALL_CORES-Buffer-The intersection of all the cores is empty.</message>
+</record>

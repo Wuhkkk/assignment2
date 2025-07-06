@@ -1,0 +1,40 @@
+spec SmartParkingSystemWellSeparated
+
+// 定义车位数量类型
+type NumCars = Int(0..10); // 车位总数最多为10
+
+// 环境变量（Inputs）
+env boolean carAtEntrance;     // 入口是否有车等待
+env boolean carAtExit;         // 出口是否有车等待
+env NumCars availableSpots;    // 当前可用停车位数量
+
+// 系统变量（Outputs）
+sys boolean openEntranceGate;  // 控制入口闸门开闭
+sys boolean openExitGate;      // 控制出口闸门开闭
+sys NumCars assignedSpot;      // 分配给新来车辆的车位编号（0~9）
+
+// ===================== 假设 (Assumptions) =====================
+// 初始状态
+asm ini !openEntranceGate;        // 初始入口闸门关闭
+asm ini !openExitGate;            // 初始出口闸门关闭
+
+// 安全性假设
+asm alw carAtExit -> next(carAtExit); // 如果出口有车，下一时刻仍可能在
+asm alw availableSpots >= 0 & availableSpots <= 10; // 可用车位应在合法范围内
+
+// 公平性假设 - 已修改为更合理的条件
+asm alwEv (availableSpots > 0 -> carAtEntrance);  // 当有空位时，最终会有车到达入口
+asm alwEv (carAtExit -> availableSpots < 10);     // 当有车在出口时，最终会有空位可供停车
+
+// ===================== 保证 (Guarantees) =====================
+// 初始状态
+gar ini assignedSpot = 0;          // 初始未分配车位，默认为0
+
+// 安全性保证
+gar alw openEntranceGate -> availableSpots > 0; // 只有还有空位才允许开门
+gar alw openEntranceGate -> next(openEntranceGate = false); // 闸门只开一拍即关
+gar alw openExitGate -> next(openExitGate = false); // 同理
+
+// 公平性保证 - 已修改为与环境假设不冲突的版本
+gar alwEv (!openEntranceGate -> (availableSpots > 0 -> carAtEntrance)); 
+gar alwEv (!openExitGate -> carAtExit);
